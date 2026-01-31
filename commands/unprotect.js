@@ -1,1 +1,0 @@
-module.exports = { name: 'unprotect', execute: (message) => message.reply('🔓 Protection removed!') };

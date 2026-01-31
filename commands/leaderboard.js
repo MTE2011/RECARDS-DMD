@@ -1,1 +1,0 @@
-const db = require('../utils/database'); module.exports = { name: 'leaderboard', execute: (message) => message.reply('🏆 Leaderboard: 1. UserA (500 cards), 2. UserB (450 cards)...') };

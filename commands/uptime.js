@@ -1,1 +1,0 @@
-module.exports = { name: 'uptime', execute: (message) => message.reply(`Uptime: ${Math.floor(process.uptime() / 60)} minutes`) };

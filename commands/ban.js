@@ -1,1 +1,0 @@
-module.exports = { name: 'ban', execute: (message) => message.reply('🔨 User banned!') };

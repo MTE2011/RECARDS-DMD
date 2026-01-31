@@ -1,1 +1,0 @@
-module.exports = { name: 'types', execute: (message) => message.reply('Available types: Pokémon, Trainer, Energy, Monster, Spell, Trap') };

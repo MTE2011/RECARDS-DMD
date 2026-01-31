@@ -1,1 +1,0 @@
-module.exports = { name: 'setspawn', execute: (message) => message.reply('✅ Spawn channels updated!') };

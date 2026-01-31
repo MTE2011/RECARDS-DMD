@@ -1,1 +1,7 @@
-module.exports = { name: 'ping', execute: (message, args, client) => message.reply(`🏓 Pong! ${client.ws.ping}ms`) };
+module.exports = {
+    name: 'ping',
+    description: 'Check bot latency',
+    execute(message, args, client) {
+        message.reply(`🏓 Pong! Latency: ${client.ws.ping}ms`);
+    }
+};

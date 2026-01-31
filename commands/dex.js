@@ -1,1 +1,14 @@
-const db = require('../utils/database'); module.exports = { name: 'dex', execute: async (message) => { const inv = await db.getInventory(message.author.id); const all = await db.getCards(); const unique = new Set(inv.cards.map(c => c.cardId)).size; message.reply(`You have collected **${unique}** out of **${all.length}** unique cards!`); } };
+const db = require('../utils/database');
+
+module.exports = {
+    name: 'dex',
+    description: 'View your collection progress',
+    async execute(message) {
+        const inventory = await db.getInventory(message.author.id);
+        const allCards = await db.getCards();
+        const uniqueOwned = new Set(inventory.cards.map(c => c.cardId)).size;
+        const percent = ((uniqueOwned / allCards.length) * 100).toFixed(1);
+
+        message.reply(`📊 **Collection Progress:** ${uniqueOwned}/${allCards.length} unique cards (${percent}%)`);
+    }
+};

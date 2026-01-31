@@ -1,1 +1,0 @@
-module.exports = { name: 'shutdown', execute: (message) => message.reply('👋 Shutting down...') };

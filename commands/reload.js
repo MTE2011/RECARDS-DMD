@@ -1,1 +1,0 @@
-module.exports = { name: 'reload', execute: (message) => message.reply('🔄 Command reloaded!') };

@@ -1,1 +1,0 @@
-module.exports = { name: 'work', execute: (message) => message.reply('💼 You worked hard and earned 100 XP!') };

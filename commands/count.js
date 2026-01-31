@@ -1,1 +1,0 @@
-const db = require('../utils/database'); module.exports = { name: 'count', execute: async (message) => { const inv = await db.getInventory(message.author.id); message.reply(`You currently own **${inv.cards.length}** cards!`); } };

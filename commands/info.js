@@ -1,1 +1,0 @@
-module.exports = { name: 'info', execute: (message) => message.reply('🎴 Cards Bot v2.0 - Standalone Edition') };

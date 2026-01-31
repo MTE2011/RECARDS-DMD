@@ -1,1 +1,0 @@
-module.exports = { name: 'invite', execute: (message) => message.reply('Invite me: [Link]') };

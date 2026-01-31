@@ -1,1 +1,0 @@
-const db = require('../utils/database'); module.exports = { name: 'favorites', execute: async (message) => { const inv = await db.getInventory(message.author.id); const favs = inv.cards.filter(c => c.favorite); if (!favs.length) return message.reply('No favorites yet!'); message.reply('Your favorites:\n' + favs.map(c => `\`${c.cardId}\` (ID: ${c.instanceId})`).join('\n')); } };

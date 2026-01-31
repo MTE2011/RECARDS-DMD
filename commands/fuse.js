@@ -1,1 +1,0 @@
-module.exports = { name: 'fuse', execute: (message) => message.reply('🧪 Fusion successful! You got a new rare card!') };

@@ -1,1 +1,0 @@
-module.exports = { name: 'clear', execute: (message) => message.reply('🧹 Messages cleared!') };

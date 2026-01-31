@@ -1,1 +1,0 @@
-module.exports = { name: 'inventory', execute: async (message, args, client) => { client.commands.get('cards').execute(message, args); } };

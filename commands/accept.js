@@ -1,1 +1,0 @@
-module.exports = { name: 'accept', execute: (message) => message.reply('✅ Trade accepted! (Logic integrated in trade system)') };
