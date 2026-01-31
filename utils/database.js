@@ -6,6 +6,7 @@ class Database {
     constructor() {
         this.baseDir = path.join(__dirname, '..', 'data');
         this.externalDataPath = process.env.EXTERNAL_DATA_PATH || path.join(__dirname, '..', '..', 'REZERO-MD', 'data');
+        this.sharedKey = process.env.DATABASE_KEY || 'mudaubotsconnet';
         
         this.paths = {
             cards: path.join(this.baseDir, 'cards.json'),
@@ -17,6 +18,12 @@ class Database {
     }
 
     async ensureFiles() {
+        // Verify shared key
+        if (process.env.DATABASE_KEY && process.env.DATABASE_KEY !== this.sharedKey) {
+            console.error('CRITICAL: Database Key Mismatch! Access Denied.');
+            process.exit(1);
+        }
+
         await fs.ensureDir(this.baseDir);
         for (const key in this.paths) {
             if (!(await fs.pathExists(this.paths[key]))) {
