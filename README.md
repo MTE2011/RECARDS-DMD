@@ -1,4 +1,4 @@
-# 🎴 Discord Cards Bot
+# 🎴 Discord Cards Bot (RECARDS-DMD)
 
 A feature-rich card collecting, trading, and battling Discord bot designed to integrate seamlessly with the **REZERO-MD** economy system. This bot does not handle user registration or core economy itself, relying entirely on the existing REZERO-MD user data for balances and profiles.
 
@@ -6,7 +6,7 @@ A feature-rich card collecting, trading, and battling Discord bot designed to in
 
 The bot focuses on a full card game experience:
 
-*   **External Economy Integration**: Reads and writes to the REZERO-MD user JSON files for all coin and XP transactions.
+*   **Shared Economy Integration**: Reads and writes to the REZERO-MD user JSON files for all coin and XP transactions, secured by a shared database key.
 *   **Automated Card Fetching**: Cards are fetched from public APIs (currently **Pokémon TCG API** and **Yu-Gi-Oh! API**).
 *   **Random Spawns**: Cards spawn randomly in active channels with configurable intervals and cooldowns.
 *   **Collection Management**: View, sell, and upgrade owned cards.
@@ -26,8 +26,8 @@ The bot focuses on a full card game experience:
 
 1.  Clone this repository:
     \`\`\`bash
-    git clone https://github.com/MTE2011/discord-cards-bot.git
-    cd discord-cards-bot
+    git clone https://github.com/MTE2011/RECARDS-DMD.git
+    cd RECARDS-DMD
     \`\`\`
 2.  Install the required dependencies:
     \`\`\`bash
@@ -45,6 +45,7 @@ Create a file named `.env` in the root directory of the project. You can use the
 | \`PREFIX\` | The command prefix for the bot. | \`.\` |
 | \`OWNER_ID\` | Your Discord User ID (for owner-only commands). | \`987654321098765432\` |
 | \`MOD_IDS\` | Comma-separated list of User IDs for admin commands. | \`id1,id2,id3\` |
+| \`DATABASE_KEY\` | **Crucial**: Must match the key in REZERO-MD's .env for synchronization. | \`mudaubotsconnet\` |
 | \`EXTERNAL_DATA_PATH\` | **Crucial**: Path to the REZERO-MD \`data\` directory. | \`../REZERO-MD/data\` |
 | \`CARD_SPAWN_MIN\` | Minimum time (in seconds) between card spawns. | \`600\` (10 minutes) |
 | \`CARD_SPAWN_MAX\` | Maximum time (in seconds) between card spawns. | \`1800\` (30 minutes) |
@@ -57,12 +58,13 @@ Create a file named `.env` in the root directory of the project. You can use the
 node index.js
 \`\`\`
 
-## 🔗 REZERO-MD Economy Integration
+## 🔗 Shared Economy Integration
 
-This bot achieves shared economy by directly accessing the JSON database files used by the REZERO-MD bot.
+This bot achieves shared economy by directly accessing the JSON database files used by the REZERO-MD bot, secured by a shared key.
 
+*   **Synchronization Key**: Both bots must have the same value for `DATABASE_KEY` in their respective `.env` files. This key is checked on startup to ensure only authorized bots can access and modify the shared database.
 *   **User Data Location**: The bot reads and writes to the user-specific JSON files located at the path specified in \`EXTERNAL_DATA_PATH\`, typically \`{REZERO-MD_ROOT}/data/users/{userId}_{username}.json\`.
-*   **Transactions**: All coin transactions (\`.sell\`, \`.battle\`, \`.upgrade\`) modify the \`economy.wallet\` field in the REZERO-MD user data.
+*   **Transactions**: All coin transactions (\`.sell\`, \`.battle\`, \`.upgrade\`) modify the \`economy.wallet\` and \`economy.xp\` fields in the REZERO-MD user data.
 *   **Prerequisite**: For a user to interact with the economy features of this bot, they must have a profile created by the REZERO-MD bot (e.g., by using a command like \`.profile\` in the other bot).
 
 ## 🎴 Card Rarity Mapping
@@ -110,7 +112,3 @@ The bot maps the various rarities from the external card APIs to a standardized 
 | \`.givecard @user <cardId>\` | Give a specific card (by its API ID) to a user. |
 | \`.removecard @user <instanceId>\` | Remove a specific card instance from a user's inventory. |
 | \`.resetcards @user\` | Clear all cards of a user (Not yet implemented, requires further database logic). |
-
-## 📝 Note on GitHub Repository
-
-*The requested repository creation on GitHub under \`MTE2011/discord-cards-bot\` could not be completed due to a technical limitation with the GitHub CLI tool in this environment. The complete source code is provided below for immediate use and deployment.*
