@@ -55,8 +55,11 @@ client.on('messageCreate', async message => {
     try {
         await command.execute(message, args, client);
     } catch (error) {
-        console.error(error);
-        message.reply('There was an error executing that command!');
+        console.error(\`Error executing \${commandName}:\`, error);
+        // Only reply if the command hasn't already sent a message
+        if (!message.replied && !message.deferred) {
+            message.reply('❌ There was an error executing that command!');
+        }
     }
 });
 

@@ -5,18 +5,23 @@ module.exports = {
     description: 'Collect a spawned card',
     async execute(message, args, client) {
         const cardIdInput = args[0];
-        if (!cardIdInput) return message.reply('❌ Please provide the card ID to collect! Example: `.collect pkmn-1`');
+        if (!cardIdInput) return message.reply('❌ Please provide the card ID to collect! Example: `.collect ygo-12345678`');
 
         const spawn = client.spawnSystem.getSpawn(message.guild.id);
-        if (!spawn || !spawn.card) return message.reply('❌ There is no card to collect right now!        // Support both full ID and partial ID if needed, but strict check is safer
-        if (spawn.card.id.toLowerCase() !== cardIdInput.toLowerCase()) {
-            return message.reply(`❌ That's not the right ID! The card here is \`\${spawn.card.id}\`.`);
+        if (!spawn || !spawn.card) return message.reply('❌ There is no card to collect right now!');
+        
+        // Normalize IDs for comparison
+        const inputId = cardIdInput.toLowerCase().trim();
+        const spawnId = spawn.card.id.toLowerCase().trim();
+
+        if (inputId !== spawnId) {
+            return message.reply(`❌ That's not the right ID! The card here is \`${spawn.card.id}\`.`);
         }
 
         try {
             const inventory = await db.getInventory(message.author.id);
             const newInstance = {
-                instanceId: Date.now().toString().slice(-8) + Math.random().toString(36).substr(2, 4).toUpperCase(),
+                instanceId: Math.random().toString(36).substr(2, 9).toUpperCase(),
                 cardId: spawn.card.id,
                 level: 1,
                 favorite: false,
@@ -27,10 +32,11 @@ module.exports = {
             await db.saveInventory(inventory);
             await client.spawnSystem.clearSpawn(message.guild.id);
 
-            message.reply(`🎉 **\${message.author.username}** collected **\${spawn.card.name}** (\${spawn.card.rarity})!`);
+            // Single message response
+            return message.reply(`🎉 **${message.author.username}** collected **${spawn.card.name}** (${spawn.card.rarity})!`);
         } catch (error) {
             console.error('Collect Error:', error);
-            message.reply('❌ There was an error saving your card. Please try again!');
+            return message.reply('❌ Error saving card. Please try again.');
         }
     }
 };

@@ -5,21 +5,27 @@ module.exports = {
     name: 'card',
     description: 'View detailed info of a card',
     async execute(message, args) {
-        const instanceId = args[0];
-        if (!instanceId) return message.reply('❌ Provide a card Instance ID! (Check `.cards`)');
+        const idInput = args[0];
+        if (!idInput) return message.reply('❌ Provide a card ID or Instance ID!');
 
         const inventory = await db.getInventory(message.author.id);
         const allCards = await db.getCards();
         
-        // Try to find by Instance ID first, then by Card ID in inventory
-        let invCard = inventory.cards.find(c => c.instanceId === instanceId);
+        const input = idInput.toLowerCase().trim();
+
+        // 1. Try to find by Instance ID (the unique code in .cards)
+        let invCard = inventory.cards.find(c => c.instanceId.toLowerCase() === input);
+        
+        // 2. If not found, try to find by Card ID (the ID from the spawn message)
         if (!invCard) {
-            invCard = inventory.cards.find(c => c.cardId.toLowerCase() === instanceId.toLowerCase());
+            invCard = inventory.cards.find(c => c.cardId.toLowerCase() === input);
         }
 
-        if (!invCard) return message.reply('❌ You do not own a card with that ID! Check your collection with `.cards`.');
+        if (!invCard) {
+            return message.reply('❌ Card not found in your collection! Check `.cards` for your IDs.');
+        }
 
-        const cardData = allCards.find(d => d.id === invCard.cardId);
+        const cardData = allCards.find(d => d.id.toLowerCase() === invCard.cardId.toLowerCase());
         if (!cardData) return message.reply('❌ Card data missing from database.');
 
         const embed = new EmbedBuilder()
@@ -32,8 +38,8 @@ module.exports = {
             )
             .setImage(cardData.image)
             .setColor('#00FF00')
-            .setFooter({ text: `ID: ${invCard.instanceId} | Acquired: ${new Date(invCard.acquiredAt).toLocaleDateString()}` });
+            .setFooter({ text: `Instance ID: ${invCard.instanceId} | Card ID: ${invCard.cardId}` });
 
-        message.reply({ embeds: [embed] });
+        return message.reply({ embeds: [embed] });
     }
 };
