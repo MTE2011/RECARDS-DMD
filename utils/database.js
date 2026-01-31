@@ -1,12 +1,13 @@
 const fs = require('fs-extra');
 const path = require('path');
+const axios = require('axios');
 require('dotenv').config();
 
 class Database {
     constructor() {
         this.baseDir = path.join(__dirname, '..', 'data');
-        this.externalDataPath = process.env.EXTERNAL_DATA_PATH || path.join(__dirname, '..', '..', 'REZERO-MD', 'data');
         this.sharedKey = process.env.DATABASE_KEY || 'mudaubotsconnet';
+        this.apiUrl = process.env.EXTERNAL_BOT_API_URL; // e.g., http://your-rezero-ip:3000
         
         this.paths = {
             cards: path.join(this.baseDir, 'cards.json'),
@@ -64,52 +65,41 @@ class Database {
         await fs.writeJson(this.paths.inventories, inventories, { spaces: 2 });
     }
 
-    // --- External Economy Integration ---
-    async getExternalUser(userId) {
-        const usersDir = path.join(this.externalDataPath, 'users');
-        if (!(await fs.pathExists(usersDir))) return null;
-
-        const files = await fs.readdir(usersDir);
-        const userFile = files.find(f => f.startsWith(userId + '_'));
-        if (!userFile) return null;
-
-        return await fs.readJson(path.join(usersDir, userFile));
-    }
-
-    async saveExternalUser(userId, userData) {
-        const usersDir = path.join(this.externalDataPath, 'users');
-        const files = await fs.readdir(usersDir);
-        const userFile = files.find(f => f.startsWith(userId + '_'));
-        if (!userFile) return;
-
-        await fs.writeJson(path.join(usersDir, userFile), userData, { spaces: 2 });
-    }
-
+    // --- External Economy Integration (via Remote API) ---
     async getBalance(userId) {
-        const user = await this.getExternalUser(userId);
-        return user ? user.economy.wallet : 0;
+        try {
+            const response = await axios.get(`${this.apiUrl}/user/${userId}`, {
+                headers: { 'x-api-key': this.sharedKey }
+            });
+            return response.data.economy.wallet;
+        } catch (error) {
+            console.error('Error fetching balance from API:', error.message);
+            return 0;
+        }
     }
 
     async updateBalance(userId, amount) {
-        const user = await this.getExternalUser(userId);
-        if (user) {
-            user.economy.wallet += amount;
-            await this.saveExternalUser(userId, user);
+        try {
+            await axios.post(`${this.apiUrl}/user/${userId}/balance`, { amount }, {
+                headers: { 'x-api-key': this.sharedKey }
+            });
             return true;
+        } catch (error) {
+            console.error('Error updating balance via API:', error.message);
+            return false;
         }
-        return false;
     }
 
     async addXP(userId, amount) {
-        const user = await this.getExternalUser(userId);
-        if (user) {
-            // Assuming REZERO-MD has an XP field, if not we can add it or skip
-            if (!user.economy.xp) user.economy.xp = 0;
-            user.economy.xp += amount;
-            await this.saveExternalUser(userId, user);
+        try {
+            await axios.post(`${this.apiUrl}/user/${userId}/xp`, { amount }, {
+                headers: { 'x-api-key': this.sharedKey }
+            });
             return true;
+        } catch (error) {
+            console.error('Error adding XP via API:', error.message);
+            return false;
         }
-        return false;
     }
 }
 
