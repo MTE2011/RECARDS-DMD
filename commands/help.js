@@ -2,19 +2,57 @@ const { EmbedBuilder } = require('discord.js');
 
 module.exports = {
     name: 'help',
-    description: 'Show all commands and how to play',
+    description: 'Show all commands categorized by type',
     async execute(message, args, client) {
+        const prefix = process.env.PREFIX || '.';
+        const category = args[0]?.toLowerCase();
+
+        const categories = {
+            cards: {
+                title: '🎴 Card Commands',
+                cmds: ['cards', 'card', 'collect', 'inventory', 'fav', 'search', 'rarities', 'types', 'sets', 'topcards', 'recent', 'history']
+            },
+            economy: {
+                title: '💰 Economy & Games',
+                cmds: ['profile', 'daily', 'bal', 'leaderboard', 'work', 'crime', 'rob', 'fish', 'hunt', 'dig', 'gamble', 'slots', 'coinflip', 'rps', 'dice', 'shop', 'buy', 'gift', 'market', 'list', 'delist']
+            },
+            social: {
+                title: '🤝 Social & Guilds',
+                cmds: ['trade', 'battle', 'guild', 'gcreate', 'ginvite', 'gjoin', 'gleave', 'gkick', 'gpromote', 'gdemote', 'gdeposit', 'gwithdraw', 'gshop', 'gupgrade']
+            },
+            progression: {
+                title: '📈 Progression & Quests',
+                cmds: ['stats', 'achievements', 'badges', 'titles', 'settitle', 'setbio', 'setcolor', 'backgrounds', 'setbg', 'quest', 'dailyquest', 'weeklyquest', 'event', 'season', 'pass', 'upgrade', 'fuse', 'dismantle', 'craft']
+            },
+            utility: {
+                title: '⚙️ Utility & Admin',
+                cmds: ['ping', 'uptime', 'info', 'invite', 'support', 'vote', 'settings', 'notifications', 'prefix', 'setspawn', 'forcespawn', 'givecard', 'clear', 'kick', 'ban', 'unban', 'warn', 'warnings', 'clearwarns']
+            }
+        };
+
+        if (!category || !categories[category]) {
+            const embed = new EmbedBuilder()
+                .setTitle('🎴 Cards Bot - Main Menu')
+                .setDescription(`Use \`${prefix}help <category>\` to see commands in a specific category.\nUse \`${prefix}guide\` for a detailed tutorial on how to play!`)
+                .addFields(
+                    { name: '🎴 Cards', value: `\`${prefix}help cards\``, inline: true },
+                    { name: '💰 Economy', value: `\`${prefix}help economy\``, inline: true },
+                    { name: '🤝 Social', value: `\`${prefix}help social\``, inline: true },
+                    { name: '📈 Progression', value: `\`${prefix}help progression\``, inline: true },
+                    { name: '⚙️ Utility', value: `\`${prefix}help utility\``, inline: true }
+                )
+                .setColor('#00FF00')
+                .setFooter({ text: `Total Commands: ${client.commands.size}` });
+
+            return message.reply({ embeds: [embed] });
+        }
+
+        const cat = categories[category];
         const embed = new EmbedBuilder()
-            .setTitle('🎴 Cards Bot - Help Menu')
-            .setDescription('Welcome to the Card Collecting Game! Here is how to play and all available commands.')
-            .addFields(
-                { name: '📖 How to Play', value: '1. Wait for a card to spawn in the channel.\n2. Type `.claim` to grab it (first person wins!).\n3. View your collection with `.cards`.\n4. Battle others with `.battle @user` to earn coins and XP!' },
-                { name: '📌 Collection & Actions', value: '`.cards` - View your collection\n`.card <id>` - View detailed card info\n`.claim` - Claim a spawned card\n`.sell <id>` - Sell a card for coins\n`.upgrade <id>` - Level up a card' },
-                { name: '⚔️ Games & Social', value: '`.battle @user` - Fight another player\n`.trade @user <id>` - Propose a trade\n`.fav <id>` - Favorite a card' },
-                { name: '🛡️ Admin', value: '`.forcespawn` - Force a card spawn\n`.givecard @user <cardId>` - Give a card' }
-            )
-            .setColor('#00FF00')
-            .setFooter({ text: 'Cards Bot x REZERO-MD Integration' });
+            .setTitle(cat.title)
+            .setDescription(cat.cmds.map(c => `\`${prefix}${c}\``).join(', '))
+            .setColor('#0099ff')
+            .setFooter({ text: `Type ${prefix}guide to learn how to use these!` });
 
         message.reply({ embeds: [embed] });
     }
