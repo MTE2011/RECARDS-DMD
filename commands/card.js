@@ -9,11 +9,17 @@ module.exports = {
         if (!instanceId) return message.reply('❌ Provide a card Instance ID! (Check `.cards`)');
 
         const inventory = await db.getInventory(message.author.id);
-        const invCard = inventory.cards.find(c => c.instanceId === instanceId);
-        if (!invCard) return message.reply('❌ You do not own a card with that ID!');
-
         const allCards = await db.getCards();
-        const cardData = allCards.find(c => c.id === invCard.cardId);
+        
+        // Try to find by Instance ID first, then by Card ID in inventory
+        let invCard = inventory.cards.find(c => c.instanceId === instanceId);
+        if (!invCard) {
+            invCard = inventory.cards.find(c => c.cardId.toLowerCase() === instanceId.toLowerCase());
+        }
+
+        if (!invCard) return message.reply('❌ You do not own a card with that ID! Check your collection with `.cards`.');
+
+        const cardData = allCards.find(d => d.id === invCard.cardId);
         if (!cardData) return message.reply('❌ Card data missing from database.');
 
         const embed = new EmbedBuilder()
