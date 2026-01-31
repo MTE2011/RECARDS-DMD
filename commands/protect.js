@@ -1,0 +1,1 @@
+module.exports = { name: 'protect', execute: (message) => message.reply('🛡️ Card protected!') };

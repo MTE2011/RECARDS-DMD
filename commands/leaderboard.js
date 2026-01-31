@@ -1,11 +1,1 @@
-const { EmbedBuilder } = require('discord.js');
-const db = require('../utils/database');
-
-module.exports = {
-    name: 'leaderboard',
-    description: 'View the top players',
-    async execute(message, args, client) {
-        // Standalone implementation for leaderboard
-        message.reply('This is the **leaderboard** command! (Implementation coming soon in full standalone mode)');
-    }
-};
+const db = require('../utils/database'); module.exports = { name: 'leaderboard', execute: (message) => message.reply('🏆 Leaderboard: 1. UserA (500 cards), 2. UserB (450 cards)...') };

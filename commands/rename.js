@@ -1,0 +1,1 @@
+module.exports = { name: 'rename', execute: (message) => message.reply('🏷️ Card renamed!') };

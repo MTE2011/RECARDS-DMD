@@ -1,11 +1,1 @@
-const { EmbedBuilder } = require('discord.js');
-const db = require('../utils/database');
-
-module.exports = {
-    name: 'dismantle',
-    description: 'Dismantle a card for materials',
-    async execute(message, args, client) {
-        // Standalone implementation for dismantle
-        message.reply('This is the **dismantle** command! (Implementation coming soon in full standalone mode)');
-    }
-};
+const db = require('../utils/database'); module.exports = { name: 'dismantle', execute: async (message, args) => { const id = args[0]; const inv = await db.getInventory(message.author.id); const idx = inv.cards.findIndex(c => c.instanceId === id); if (idx === -1) return message.reply('Card not found!'); inv.cards.splice(idx, 1); await db.saveInventory(inv); message.reply('♻️ Card dismantled into materials!'); } };

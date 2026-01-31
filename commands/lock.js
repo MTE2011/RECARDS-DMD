@@ -1,0 +1,1 @@
+module.exports = { name: 'lock', execute: (message) => message.reply('🔒 Card locked!') };

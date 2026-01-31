@@ -1,11 +1,1 @@
-const { EmbedBuilder } = require('discord.js');
-const db = require('../utils/database');
-
-module.exports = {
-    name: 'profile',
-    description: 'View your profile and balance',
-    async execute(message, args, client) {
-        // Standalone implementation for profile
-        message.reply('This is the **profile** command! (Implementation coming soon in full standalone mode)');
-    }
-};
+const { EmbedBuilder } = require('discord.js'); const db = require('../utils/database'); module.exports = { name: 'profile', execute: async (message) => { const user = await db.getUser(message.author.id); const inv = await db.getInventory(message.author.id); const embed = new EmbedBuilder().setTitle(`${message.author.username}'s Profile`).addFields({name:'Level', value: user.level.toString(), inline: true}, {name:'Cards', value: inv.cards.length.toString(), inline: true}); message.reply({ embeds: [embed] }); } };

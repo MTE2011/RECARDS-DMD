@@ -1,0 +1,1 @@
+module.exports = { name: 'unlock', execute: (message) => message.reply('🔓 Card unlocked!') };

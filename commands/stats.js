@@ -1,11 +1,1 @@
-const { EmbedBuilder } = require('discord.js');
-const db = require('../utils/database');
-
-module.exports = {
-    name: 'stats',
-    description: 'View your game statistics',
-    async execute(message, args, client) {
-        // Standalone implementation for stats
-        message.reply('This is the **stats** command! (Implementation coming soon in full standalone mode)');
-    }
-};
+const db = require('../utils/database'); module.exports = { name: 'stats', execute: async (message) => { const inv = await db.getInventory(message.author.id); message.reply(`Stats: Total Cards: ${inv.cards.length}, Battles Won: 0, Trades: 0`); } };

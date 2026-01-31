@@ -1,0 +1,1 @@
+const db = require('../utils/database'); module.exports = { name: 'dex', execute: async (message) => { const inv = await db.getInventory(message.author.id); const all = await db.getCards(); const unique = new Set(inv.cards.map(c => c.cardId)).size; message.reply(`You have collected **${unique}** out of **${all.length}** unique cards!`); } };

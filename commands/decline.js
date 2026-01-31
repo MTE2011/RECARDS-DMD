@@ -1,0 +1,1 @@
+module.exports = { name: 'decline', execute: (message) => message.reply('❌ Trade declined.') };

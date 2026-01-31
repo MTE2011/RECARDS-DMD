@@ -1,11 +1,1 @@
-const { EmbedBuilder } = require('discord.js');
-const db = require('../utils/database');
-
-module.exports = {
-    name: 'search',
-    description: 'Search for a specific card',
-    async execute(message, args, client) {
-        // Standalone implementation for search
-        message.reply('This is the **search** command! (Implementation coming soon in full standalone mode)');
-    }
-};
+const { EmbedBuilder } = require('discord.js'); const db = require('../utils/database'); module.exports = { name: 'search', execute: async (message, args) => { const query = args.join(' ').toLowerCase(); const all = await db.getCards(); const results = all.filter(c => c.name.toLowerCase().includes(query)).slice(0, 5); if (!results.length) return message.reply('No cards found!'); const embed = new EmbedBuilder().setTitle('🔍 Search Results').setDescription(results.map(r => `**${r.name}** (ID: \`${r.id}\`)`).join('\n')); message.reply({ embeds: [embed] }); } };

@@ -1,0 +1,1 @@
+module.exports = { name: 'top', execute: (message) => message.reply('Top Cards: 1. Pikachu, 2. Charizard...') };

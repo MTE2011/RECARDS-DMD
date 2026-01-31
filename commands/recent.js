@@ -1,11 +1,1 @@
-const { EmbedBuilder } = require('discord.js');
-const db = require('../utils/database');
-
-module.exports = {
-    name: 'recent',
-    description: 'View recently collected cards',
-    async execute(message, args, client) {
-        // Standalone implementation for recent
-        message.reply('This is the **recent** command! (Implementation coming soon in full standalone mode)');
-    }
-};
+const db = require('../utils/database'); module.exports = { name: 'recent', execute: async (message) => { const inv = await db.getInventory(message.author.id); const recent = inv.cards.slice(-5).reverse(); if (!recent.length) return message.reply('No cards yet!'); message.reply('Your 5 most recent cards:\n' + recent.map(c => `\`${c.cardId}\` (ID: ${c.instanceId})`).join('\n')); } };
