@@ -8,6 +8,7 @@ class SpawnSystem {
         this.client = client;
         this.spawnsPath = path.join(__dirname, '..', 'data', 'spawns.json');
         this.activeSpawns = new Map();
+        this.spawnChannels = (process.env.SPAWN_CHANNELS || '').split(',');
     }
 
     async init() {
@@ -19,7 +20,7 @@ class SpawnSystem {
         }
         
         // Start spawn loop
-        setInterval(() => this.checkSpawns(), 60000); // Check every minute
+        setInterval(() => this.checkSpawns(), 30000); // Check every 30 seconds
     }
 
     async checkSpawns() {
@@ -39,19 +40,35 @@ class SpawnSystem {
         if (cards.length === 0) return;
 
         const card = cards[Math.floor(Math.random() * cards.length)];
-        const channel = guild.channels.cache.find(c => c.type === 0 && c.permissionsFor(this.client.user).has('SendMessages'));
+        
+        // Find a valid spawn channel from the config
+        let channel = null;
+        for (const channelId of this.spawnChannels) {
+            const targetChannel = guild.channels.cache.get(channelId.trim());
+            if (targetChannel && targetChannel.type === 0 && targetChannel.permissionsFor(this.client.user).has('SendMessages')) {
+                channel = targetChannel;
+                break;
+            }
+        }
+
+        // Fallback to any channel if none of the specified ones are found
+        if (!channel) {
+            channel = guild.channels.cache.find(c => c.type === 0 && c.permissionsFor(this.client.user).has('SendMessages'));
+        }
         
         if (!channel) return;
 
         const embed = new EmbedBuilder()
             .setTitle('🎴 A wild card appeared!')
-            .setDescription(`Type \`.claim\` to grab it!\n\n**${card.name}**\nRarity: ${card.rarity}`)
+            .setDescription(`Type \`.collect ${card.id}\` to grab it for free!\n\n**${card.name}**\nRarity: ${card.rarity}`)
             .setImage(card.image)
-            .setColor('#FFD700');
+            .setColor('#00FF00');
 
         const message = await channel.send({ embeds: [embed] });
 
-        const nextSpawnTime = Date.now() + (Math.floor(Math.random() * (process.env.CARD_SPAWN_MAX - process.env.CARD_SPAWN_MIN + 1)) + parseInt(process.env.CARD_SPAWN_MIN)) * 1000;
+        const min = parseInt(process.env.CARD_SPAWN_MIN) || 300;
+        const max = parseInt(process.env.CARD_SPAWN_MAX) || 600;
+        const nextSpawnTime = Date.now() + (Math.floor(Math.random() * (max - min + 1)) + min) * 1000;
 
         const spawnData = {
             card,

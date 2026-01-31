@@ -1,30 +1,21 @@
 const fs = require('fs-extra');
 const path = require('path');
-const axios = require('axios');
 require('dotenv').config();
 
 class Database {
     constructor() {
         this.baseDir = path.join(__dirname, '..', 'data');
-        this.sharedKey = process.env.DATABASE_KEY || 'mudaubotsconnet';
-        this.apiUrl = process.env.EXTERNAL_BOT_API_URL; // e.g., http://your-rezero-ip:3000
-        
         this.paths = {
             cards: path.join(this.baseDir, 'cards.json'),
             inventories: path.join(this.baseDir, 'inventories.json'),
-            spawns: path.join(this.baseDir, 'spawns.json')
+            spawns: path.join(this.baseDir, 'spawns.json'),
+            users: path.join(this.baseDir, 'users.json')
         };
 
         this.ensureFiles();
     }
 
     async ensureFiles() {
-        // Verify shared key
-        if (process.env.DATABASE_KEY && process.env.DATABASE_KEY !== this.sharedKey) {
-            console.error('CRITICAL: Database Key Mismatch! Access Denied.');
-            process.exit(1);
-        }
-
         await fs.ensureDir(this.baseDir);
         for (const key in this.paths) {
             if (!(await fs.pathExists(this.paths[key]))) {
@@ -40,6 +31,36 @@ class Database {
 
     async saveCards(cards) {
         await fs.writeJson(this.paths.cards, cards, { spaces: 2 });
+    }
+
+    // --- User Profiles & Economy ---
+    async getUser(userId) {
+        const users = await fs.readJson(this.paths.users);
+        let user = users.find(u => u.id === userId);
+        if (!user) {
+            user = {
+                id: userId,
+                balance: 1000,
+                xp: 0,
+                level: 1,
+                dailyLastClaimed: null,
+                registeredAt: new Date().toISOString()
+            };
+            users.push(user);
+            await fs.writeJson(this.paths.users, users, { spaces: 2 });
+        }
+        return user;
+    }
+
+    async saveUser(userData) {
+        const users = await fs.readJson(this.paths.users);
+        const index = users.findIndex(u => u.id === userData.id);
+        if (index !== -1) {
+            users[index] = userData;
+        } else {
+            users.push(userData);
+        }
+        await fs.writeJson(this.paths.users, users, { spaces: 2 });
     }
 
     // --- User Inventories ---
@@ -63,43 +84,6 @@ class Database {
             inventories.push(userInv);
         }
         await fs.writeJson(this.paths.inventories, inventories, { spaces: 2 });
-    }
-
-    // --- External Economy Integration (via Remote API) ---
-    async getBalance(userId) {
-        try {
-            const response = await axios.get(`${this.apiUrl}/user/${userId}`, {
-                headers: { 'x-api-key': this.sharedKey }
-            });
-            return response.data.economy.wallet;
-        } catch (error) {
-            console.error('Error fetching balance from API:', error.message);
-            return 0;
-        }
-    }
-
-    async updateBalance(userId, amount) {
-        try {
-            await axios.post(`${this.apiUrl}/user/${userId}/balance`, { amount }, {
-                headers: { 'x-api-key': this.sharedKey }
-            });
-            return true;
-        } catch (error) {
-            console.error('Error updating balance via API:', error.message);
-            return false;
-        }
-    }
-
-    async addXP(userId, amount) {
-        try {
-            await axios.post(`${this.apiUrl}/user/${userId}/xp`, { amount }, {
-                headers: { 'x-api-key': this.sharedKey }
-            });
-            return true;
-        } catch (error) {
-            console.error('Error adding XP via API:', error.message);
-            return false;
-        }
     }
 }
 
