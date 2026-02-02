@@ -1,50 +1,62 @@
-# 🎴 Standalone Discord Cards Bot (RECARDS-DMD)
+# DECARDS-DMD: Discord Card Collecting Bot
 
-A massive, standalone card collecting game for Discord. This bot is completely independent and features its own economy, profile system, and over 80 commands!
+A pure card-collecting system for Discord using `discord.js v14`. This bot focuses entirely on collecting, viewing, and trading cards without any gambling or economy elements.
 
-## 🚀 Features
+## Features
+- **Automatic Spawning:** Cards spawn randomly every 5 or 10 minutes in designated channels.
+- **Rarity System:** 5 rarities (Common, Rare, Epic, Legendary, Mythic) with specific spawn chances.
+- **Inventory Management:** View, favorite, rename, or burn cards.
+- **Trading System:** Securely trade cards with other users.
+- **No Economy:** No currency, no betting, no luck-based games.
 
-*   **Standalone Economy**: No external bot required. Features its own balance, XP, and leveling system.
-*   **Free Collection**: Cards spawn randomly in specific channels. Use \`.collect <cardId>\` to grab them for free!
-*   **80+ Commands**: A huge variety of commands for games, social interaction, card management, and administration.
-*   **Specific Spawn Channels**: Configure exactly where cards should appear.
-*   **Automated Card Fetching**: Pulls from Pokémon TCG and Yu-Gi-Oh! APIs.
-*   **Trading & Battles**: Exchange cards with others or fight to earn rewards.
+## Commands
+### Collection
+- `.claim` - Claim the spawned card
+- `.inventory [@user]` - View your cards or another user's inventory
+- `.card <id>` - View detailed card info
+- `.collection` - View your collection progress %
 
-## 🛠️ Setup
+### Management
+- `.favorite <card_id>` - Mark a card as favorite
+- `.unfavorite <card_id>` - Remove a card from favorites
+- `.favorites` - View your favorite cards
+- `.burn <card_id>` - Permanently remove a card
+- `.rename <card_id> <nickname>` - Give a custom nickname to a card
 
-1.  **Clone & Install**:
-    \`\`\`bash
-    git clone https://github.com/MTE2011/RECARDS-DMD.git
-    cd RECARDS-DMD
-    npm install
-    \`\`\`
+### Trading
+- `.trade @user <your_card_id> <their_card_id>` - Propose a trade
+- `.tradeaccept` - Accept a pending trade
+- `.tradedecline` - Decline a pending trade
 
-2.  **Configure \`.env\`**:
-    | Variable | Description |
-    | :--- | :--- |
-    | \`BOT_TOKEN\` | Your Discord bot token |
-    | \`PREFIX\` | Command prefix (e.g., \`.\`) |
-    | \`SPAWN_CHANNELS\` | Comma-separated list of channel IDs for spawns |
-    | \`OWNER_ID\` | Your Discord User ID |
+### Info / Stats
+- `.stats` - View your card statistics
+- `.leaderboard` - Top collectors leaderboard
+- `.rarities` - Rarity explanation and chances
+- `.cooldowns` - Show claim cooldown info
+- `.help` - Show this help menu
+- `.ping` - Check bot latency
+- `.profile` - View your card showcase profile
 
-3.  **Run**:
-    \`\`\`bash
-    node index.js
-    \`\`\`
+### Admin
+- `.forcespawn` - Force a card spawn in the current channel
+- `.addcard <id> <rarity> <imageUrl> <name> | <description>` - Add a new card
+- `.removecard <id>` - Remove a card from the system
+- `.setspawn` - Set the current channel as a spawn channel
+- `.resetinventory @user` - Reset a user's inventory
 
-## 🎮 How to Play
+## Configuration
+Create a `.env` file in the root directory with the following:
+```env
+DISCORD_TOKEN=your_bot_token
+PREFIX=.
+OWNER_ID=your_discord_id
+SPAWN_CHANNELS=channel_id_1,channel_id_2
+ALLOWED_CHANNELS=channel_id_1,channel_id_2,channel_id_3
+MONGO_URI=mongodb://localhost:27017/decards
+```
 
-1.  **Start**: Type \`.help\` to see all commands.
-2.  **Collect**: Watch the designated spawn channels. When a card appears, type \`.collect <cardId>\` quickly!
-3.  **Inventory**: Check your cards with \`.cards\` or \`.inventory\`.
-4.  **Social**: Trade with friends using \`.trade @user <id>\` or battle them with \`.battle @user\`.
-5.  **Economy**: Earn coins through \`.daily\`, \`.work\`, or games like \`.coinflip\` and \`.slots\`.
-
-## 🛡️ Admin Commands
-
-*   \`.forcespawn\`: Manually trigger a card spawn.
-*   \`.givecard @user <cardId>\`: Give a specific card to a user.
-*   \`.setspawn <channelIds>\`: Update spawn channels on the fly.
-
-Enjoy the ultimate card collecting experience!
+## Installation
+1. Clone the repository
+2. Run `npm install`
+3. Configure the `.env` file
+4. Run `npm start`
