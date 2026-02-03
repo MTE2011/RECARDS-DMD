@@ -1,16 +1,17 @@
 const { EmbedBuilder } = require('discord.js');
-const { User, Card } = require('../../models/schemas');
+const db = require('../../utils/database');
 
 module.exports = {
     name: 'collection',
     description: 'View your collection progress',
     async execute(message, args, client) {
-        const user = await User.findOne({ userId: message.author.id });
-        const totalCards = await Card.countDocuments();
+        const user = db.getUser(message.author.id);
+        const allCards = db.getCards();
+        const totalCards = allCards.length;
         
         if (totalCards === 0) return message.reply('No cards exist in the system yet.');
 
-        const userCardIds = user ? [...new Set(user.inventory.map(i => i.cardId))] : [];
+        const userCardIds = [...new Set(user.inventory.map(i => i.cardId))];
         const ownedCount = userCardIds.length;
         const percentage = ((ownedCount / totalCards) * 100).toFixed(2);
 

@@ -1,4 +1,4 @@
-const { User } = require('../../models/schemas');
+const db = require('../../utils/database');
 const { PermissionsBitField } = require('discord.js');
 
 module.exports = {
@@ -12,8 +12,8 @@ module.exports = {
         const target = message.mentions.users.first();
         if (!target) return message.reply('Please mention a user to reset.');
 
-        const result = await User.deleteOne({ userId: target.id });
-        if (result.deletedCount === 0) return message.reply('User has no inventory to reset.');
+        const success = db.deleteUser(target.id);
+        if (!success) return message.reply('User has no inventory to reset.');
 
         message.reply(`Inventory for ${target.username} has been completely reset.`);
     }

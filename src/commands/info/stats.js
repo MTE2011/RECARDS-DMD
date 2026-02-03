@@ -1,22 +1,20 @@
 const { EmbedBuilder } = require('discord.js');
-const { User, Card } = require('../../models/schemas');
+const db = require('../../utils/database');
 const { RARITIES } = require('../../utils/constants');
 
 module.exports = {
     name: 'stats',
     description: 'View your card statistics',
     async execute(message, args, client) {
-        const user = await User.findOne({ userId: message.author.id });
+        const user = db.getUser(message.author.id);
         if (!user || user.inventory.length === 0) return message.reply('You have no cards.');
 
-        const cardIds = user.inventory.map(i => i.cardId);
-        const cards = await Card.find({ id: { $in: cardIds } });
-        
         const rarityCounts = {};
         Object.keys(RARITIES).forEach(r => rarityCounts[r] = 0);
         
-        cards.forEach(card => {
-            rarityCounts[card.rarity]++;
+        user.inventory.forEach(item => {
+            const card = db.getCard(item.cardId);
+            if (card) rarityCounts[card.rarity]++;
         });
 
         const statsList = Object.entries(rarityCounts)

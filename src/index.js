@@ -1,8 +1,8 @@
 require('dotenv').config();
-const { Client, GatewayIntentBits, Collection, EmbedBuilder, Events } = require('discord.js');
-const mongoose = require('mongoose');
+const { Client, GatewayIntentBits, Collection, Events } = require('discord.js');
 const fs = require('fs');
 const path = require('path');
+const db = require('./utils/database');
 
 const client = new Client({
     intents: [
@@ -20,15 +20,11 @@ client.config = {
     allowedChannels: process.env.ALLOWED_CHANNELS ? process.env.ALLOWED_CHANNELS.split(',') : [],
 };
 
-console.log('--- Bot Starting ---');
+console.log('--- Bot Starting (JSON DB Mode) ---');
 console.log(`Prefix: ${client.config.prefix}`);
-console.log(`Spawn Channels: ${client.config.spawnChannels.join(', ') || 'None set'}`);
-console.log(`Allowed Channels: ${client.config.allowedChannels.join(', ') || 'All'}`);
 
 // Load Commands
 const commandsPath = path.join(__dirname, 'commands');
-if (!fs.existsSync(commandsPath)) fs.mkdirSync(commandsPath, { recursive: true });
-
 const commandFolders = fs.readdirSync(commandsPath);
 for (const folder of commandFolders) {
     const folderPath = path.join(commandsPath, folder);
@@ -42,17 +38,7 @@ for (const folder of commandFolders) {
     }
 }
 
-// Database Connection with better error handling
-const mongoUri = process.env.MONGO_URI || 'mongodb://localhost:27017/decards';
-mongoose.connect(mongoUri)
-    .then(() => console.log('Successfully connected to MongoDB'))
-    .catch(err => {
-        console.error('CRITICAL: MongoDB connection error!');
-        console.error('Make sure your MONGO_URI in .env is correct.');
-        console.error('Error details:', err.message);
-    });
-
-// Event: Ready (Updated to use Events.ClientReady for v14/v15 compatibility)
+// Event: Ready
 client.once(Events.ClientReady, c => {
     console.log(`--- Bot is Online! ---`);
     console.log(`Logged in as ${c.user.tag}`);
@@ -61,42 +47,25 @@ client.once(Events.ClientReady, c => {
 
 // Event: Message Create
 client.on(Events.MessageCreate, async message => {
-    // Ignore bots
-    if (message.author.bot) return;
-
-    // Check if message starts with prefix
-    if (!message.content.startsWith(client.config.prefix)) return;
-
-    console.log(`Command received: ${message.content} from ${message.author.tag} in channel ${message.channel.id}`);
+    if (message.author.bot || !message.content.startsWith(client.config.prefix)) return;
 
     // Channel restriction check
-    if (client.config.allowedChannels.length > 0 && !client.config.allowedChannels.includes(message.channel.id)) {
-        console.log(`Command ignored: Channel ${message.channel.id} is not in ALLOWED_CHANNELS`);
-        return;
-    }
+    if (client.config.allowedChannels.length > 0 && !client.config.allowedChannels.includes(message.channel.id)) return;
 
     const args = message.content.slice(client.config.prefix.length).trim().split(/ +/);
     const commandName = args.shift().toLowerCase();
 
     const command = client.commands.get(commandName) || client.commands.find(cmd => cmd.aliases && cmd.aliases.includes(commandName));
-    
-    if (!command) {
-        console.log(`Command not found: ${commandName}`);
-        return;
-    }
+    if (!command) return;
 
     try {
         await command.execute(message, args, client);
-        console.log(`Successfully executed: ${commandName}`);
     } catch (error) {
         console.error(`Error executing ${commandName}:`, error);
-        message.reply('There was an error executing that command. Check the console for details.').catch(() => {});
+        message.reply('There was an error executing that command.').catch(() => {});
     }
 });
 
-// Handle unhandled rejections
-process.on('unhandledRejection', error => {
-    console.error('Unhandled promise rejection:', error);
-});
+process.on('unhandledRejection', error => console.error('Unhandled promise rejection:', error));
 
 client.login(process.env.DISCORD_TOKEN);

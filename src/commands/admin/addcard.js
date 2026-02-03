@@ -1,4 +1,4 @@
-const { Card } = require('../../models/schemas');
+const db = require('../../utils/database');
 const { PermissionsBitField } = require('discord.js');
 
 module.exports = {
@@ -9,7 +9,6 @@ module.exports = {
             return message.reply('You do not have permission to use this command.');
         }
 
-        // Usage: .addcard <id> <rarity> <imageUrl> <name> | <description>
         const content = args.join(' ');
         const parts = content.split('|');
         const mainParts = parts[0].trim().split(' ');
@@ -29,12 +28,11 @@ module.exports = {
             return message.reply(`Invalid rarity. Choose from: ${validRarities.join(', ')}`);
         }
 
-        try {
-            const newCard = new Card({ id, name, rarity, imageUrl, description });
-            await newCard.save();
+        const success = db.addCard({ id, name, rarity, imageUrl, description });
+        if (success) {
             message.reply(`Card **${name}** (ID: ${id}) has been added!`);
-        } catch (error) {
-            message.reply(`Error adding card: ${error.message}`);
+        } else {
+            message.reply(`Error: Card with ID ${id} already exists.`);
         }
     }
 };

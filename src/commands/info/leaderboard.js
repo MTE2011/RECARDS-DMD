@@ -1,16 +1,16 @@
 const { EmbedBuilder } = require('discord.js');
-const { User } = require('../../models/schemas');
+const db = require('../../utils/database');
 
 module.exports = {
     name: 'leaderboard',
     aliases: ['lb'],
     description: 'Top collectors (count only)',
     async execute(message, args, client) {
-        const topUsers = await User.aggregate([
-            { $project: { userId: 1, cardCount: { $size: "$inventory" } } },
-            { $sort: { cardCount: -1 } },
-            { $limit: 10 }
-        ]);
+        const allUsers = db.getAllUsers();
+        const topUsers = allUsers
+            .map(u => ({ userId: u.userId, cardCount: u.inventory.length }))
+            .sort((a, b) => b.cardCount - a.cardCount)
+            .slice(0, 10);
 
         if (topUsers.length === 0) return message.reply('No collectors found.');
 

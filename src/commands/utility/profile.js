@@ -1,17 +1,18 @@
 const { EmbedBuilder } = require('discord.js');
-const { User, Card } = require('../../models/schemas');
+const db = require('../../utils/database');
 const { RARITIES } = require('../../utils/constants');
 
 module.exports = {
     name: 'profile',
     description: 'Card showcase profile',
     async execute(message, args, client) {
-        const user = await User.findOne({ userId: message.author.id });
+        const user = db.getUser(message.author.id);
         if (!user || user.inventory.length === 0) return message.reply('You have no cards.');
 
-        // Find the most recent or a favorite card to showcase
         const favorite = user.inventory.find(i => i.isFavorite) || user.inventory[user.inventory.length - 1];
-        const card = await Card.findOne({ id: favorite.cardId });
+        const card = db.getCard(favorite.cardId);
+
+        if (!card) return message.reply('Error: Showcase card not found.');
 
         const embed = new EmbedBuilder()
             .setTitle(`${message.author.username}'s Profile`)

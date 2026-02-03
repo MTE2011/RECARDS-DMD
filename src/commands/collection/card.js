@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { Card } = require('../../models/schemas');
+const db = require('../../utils/database');
 const { RARITIES } = require('../../utils/constants');
 
 module.exports = {
@@ -8,7 +8,7 @@ module.exports = {
     async execute(message, args, client) {
         if (!args[0]) return message.reply('Please provide a card ID.');
 
-        const card = await Card.findOne({ id: args[0] });
+        const card = db.getCard(args[0]);
         if (!card) return message.reply('Card not found.');
 
         const embed = new EmbedBuilder()

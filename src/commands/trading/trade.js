@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { User, Card } = require('../../models/schemas');
+const db = require('../../utils/database');
 
 module.exports = {
     name: 'trade',
@@ -15,25 +15,24 @@ module.exports = {
 
         if (target.id === message.author.id) return message.reply('You cannot trade with yourself.');
 
-        const user = await User.findOne({ userId: message.author.id });
-        const targetUser = await User.findOne({ userId: target.id });
+        const user = db.getUser(message.author.id);
+        const targetUser = db.getUser(target.id);
 
-        if (!user || !user.inventory.some(i => i.cardId === yourCardId)) {
+        if (!user.inventory.some(i => i.cardId === yourCardId)) {
             return message.reply(`You don't own card \`${yourCardId}\`.`);
         }
 
-        if (!targetUser || !targetUser.inventory.some(i => i.cardId === theirCardId)) {
+        if (!targetUser.inventory.some(i => i.cardId === theirCardId)) {
             return message.reply(`${target.username} doesn't own card \`${theirCardId}\`.`);
         }
 
-        // Initialize trades map if not exists
         if (!client.trades) client.trades = new Map();
 
         client.trades.set(target.id, {
             proposerId: message.author.id,
             proposerCardId: yourCardId,
             targetCardId: theirCardId,
-            expiresAt: Date.now() + 300000 // 5 minutes
+            expiresAt: Date.now() + 300000
         });
 
         const embed = new EmbedBuilder()

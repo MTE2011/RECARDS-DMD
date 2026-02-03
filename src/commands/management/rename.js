@@ -1,4 +1,4 @@
-const { User } = require('../../models/schemas');
+const db = require('../../utils/database');
 
 module.exports = {
     name: 'rename',
@@ -9,14 +9,12 @@ module.exports = {
 
         if (!cardId || !nickname) return message.reply('Usage: `.rename <card_id> <nickname>`');
 
-        const user = await User.findOne({ userId: message.author.id });
-        if (!user) return message.reply('You don\'t have any cards.');
-
+        const user = db.getUser(message.author.id);
         const cardIndex = user.inventory.findIndex(i => i.cardId === cardId);
         if (cardIndex === -1) return message.reply('You don\'t own this card.');
 
         user.inventory[cardIndex].nickname = nickname;
-        await user.save();
+        db.updateUser(user);
 
         message.reply(`Card \`${cardId}\` has been renamed to **${nickname}**!`);
     }

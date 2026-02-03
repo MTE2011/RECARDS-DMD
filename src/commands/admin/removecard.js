@@ -1,4 +1,4 @@
-const { Card } = require('../../models/schemas');
+const db = require('../../utils/database');
 const { PermissionsBitField } = require('discord.js');
 
 module.exports = {
@@ -12,8 +12,8 @@ module.exports = {
         const id = args[0];
         if (!id) return message.reply('Please provide the card ID to remove.');
 
-        const result = await Card.deleteOne({ id });
-        if (result.deletedCount === 0) return message.reply('Card not found.');
+        const success = db.removeCard(id);
+        if (!success) return message.reply('Card not found.');
 
         message.reply(`Card \`${id}\` has been removed from the system.`);
     }

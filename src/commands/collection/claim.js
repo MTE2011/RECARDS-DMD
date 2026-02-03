@@ -1,5 +1,5 @@
 const { EmbedBuilder } = require('discord.js');
-const { User } = require('../../models/schemas');
+const db = require('../../utils/database');
 const { RARITIES } = require('../../utils/constants');
 
 module.exports = {
@@ -11,17 +11,13 @@ module.exports = {
 
         client.activeSpawns.delete(message.channel.id);
 
-        let user = await User.findOne({ userId: message.author.id });
-        if (!user) {
-            user = new User({ userId: message.author.id, inventory: [] });
-        }
-
+        const user = db.getUser(message.author.id);
         user.inventory.push({
             cardId: spawn.card.id,
             obtainedAt: new Date()
         });
 
-        await user.save();
+        db.updateUser(user);
 
         const embed = new EmbedBuilder()
             .setTitle('Card Claimed!')
