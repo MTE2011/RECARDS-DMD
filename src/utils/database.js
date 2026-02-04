@@ -1,17 +1,36 @@
 const fs = require('fs');
 const path = require('path');
+const defaultCards = require('./defaultCards');
 
 const dbPath = path.join(process.cwd(), 'database.json');
 
-// Initialize database if it doesn't exist
-if (!fs.existsSync(dbPath)) {
-    const initialData = {
-        cards: [],
-        users: [],
-        config: {}
-    };
-    fs.writeFileSync(dbPath, JSON.stringify(initialData, null, 4));
-}
+// Initialize database if it doesn't exist or is empty
+const initializeDB = () => {
+    let data;
+    if (!fs.existsSync(dbPath)) {
+        data = {
+            cards: defaultCards,
+            users: [],
+            config: {}
+        };
+        fs.writeFileSync(dbPath, JSON.stringify(data, null, 4));
+        console.log('Database initialized with default cards.');
+    } else {
+        try {
+            const fileContent = fs.readFileSync(dbPath, 'utf8');
+            data = JSON.parse(fileContent);
+            if (!data.cards || data.cards.length === 0) {
+                data.cards = defaultCards;
+                fs.writeFileSync(dbPath, JSON.stringify(data, null, 4));
+                console.log('Empty database populated with default cards.');
+            }
+        } catch (error) {
+            console.error('Error during database initialization:', error);
+        }
+    }
+};
+
+initializeDB();
 
 const readDB = () => {
     try {
@@ -19,7 +38,7 @@ const readDB = () => {
         return JSON.parse(data);
     } catch (error) {
         console.error('Error reading database:', error);
-        return { cards: [], users: [], config: {} };
+        return { cards: defaultCards, users: [], config: {} };
     }
 };
 
